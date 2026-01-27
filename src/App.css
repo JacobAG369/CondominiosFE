@@ -1,42 +1,230 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: clamp(2rem, 4vw, 4rem);
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem;
+  animation: slideIn 0.6s ease forwards;
 }
 
-@keyframes logo-spin {
+.eyebrow {
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  color: var(--sea-dark);
+  font-weight: 600;
+}
+
+.hero h1 {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  margin: 0.4rem 0 0.6rem;
+  color: var(--ink);
+}
+
+.subtitle {
+  max-width: 36rem;
+  color: var(--ink-muted);
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1rem;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  border: 1px solid rgba(20, 20, 20, 0.08);
+  box-shadow: var(--soft-shadow);
+}
+
+.status-text {
+  font-size: 0.9rem;
+  color: var(--ink-muted);
+}
+
+.panel {
+  position: relative;
+  background: var(--card);
+  border-radius: 24px;
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  box-shadow: var(--deep-shadow);
+  border: 1px solid rgba(20, 20, 20, 0.08);
+  overflow: hidden;
+  animation: slideIn 0.7s ease 0.1s forwards;
+}
+
+.panel::before {
+  content: '';
+  position: absolute;
+  inset: -40% 40% auto auto;
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, rgba(255, 111, 61, 0.25), transparent 70%);
+  opacity: 0.8;
+}
+
+.panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.panel-head h2 {
+  margin: 0 0 0.3rem;
+  font-size: 1.4rem;
+  color: var(--ink);
+}
+
+.panel-head p {
+  margin: 0;
+  color: var(--ink-muted);
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+.fields label {
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--ink-muted);
+}
+
+.fields input {
+  border-radius: 12px;
+  border: 1px solid rgba(20, 20, 20, 0.15);
+  padding: 0.6rem 0.8rem;
+  background: #fff;
+  font-size: 0.95rem;
+}
+
+.messages {
+  display: grid;
+  gap: 1rem;
+  max-height: 420px;
+  overflow-y: auto;
+  padding-right: 0.4rem;
+}
+
+.message {
+  position: relative;
+  border-radius: 18px;
+  padding: 1rem 1.2rem;
+  background: #ffffff;
+  border: 1px solid rgba(20, 20, 20, 0.08);
+  border-left: 4px solid var(--accent);
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeUp 0.4s ease forwards;
+  animation-delay: var(--delay, 0ms);
+}
+
+.message-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.5rem;
+}
+
+.message p {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--ink);
+}
+
+.muted {
+  color: var(--ink-muted);
+  font-size: 0.95rem;
+}
+
+.composer {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.composer input {
+  border-radius: 16px;
+  border: 1px solid rgba(20, 20, 20, 0.15);
+  padding: 0.9rem 1rem;
+  font-size: 1rem;
+  background: #fff;
+}
+
+.composer button {
+  border: none;
+  border-radius: 16px;
+  padding: 0 1.6rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  background: var(--accent);
+  color: white;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.composer button:hover {
+  transform: translateY(-1px);
+  background: var(--accent-strong);
+}
+
+.composer button:disabled {
+  cursor: not-allowed;
+  background: #c9b7ab;
+  transform: none;
+}
+
+@keyframes fadeUp {
   from {
-    transform: rotate(0deg);
+    opacity: 0;
+    transform: translateY(12px);
   }
   to {
-    transform: rotate(360deg);
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-.card {
-  padding: 2em;
-}
+@media (max-width: 768px) {
+  .composer {
+    grid-template-columns: 1fr;
+  }
 
-.read-the-docs {
-  color: #888;
+  .status {
+    width: 100%;
+    justify-content: center;
+  }
 }
