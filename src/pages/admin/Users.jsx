@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import AppShell from "../../components/layout/AppShell";
 import Card from "../../components/ui/Card";
 import Input from "../../components/ui/Input";
-import Button from "../../components/ui/Button";
 import Badge from "../../components/ui/Badge";
+import AnimatedAlert from "../../components/ui/AnimatedAlert";
+import LoadingButton from "../../components/ui/LoadingButton";
 import api from "../../api/axios";
 
 export default function Users() {
@@ -11,10 +12,10 @@ export default function Users() {
     const [users, setUsers] = useState([]);
     const [departamentos, setDepartamentos] = useState([]);
     const [roles, setRoles] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [errors, setErrors] = useState({});
-    const [generalError, setGeneralError] = useState("");
-    const [successMessage, setSuccessMessage] = useState("");
+    const [isSaving, setIsSaving] = useState(false);
+    const [fieldErrors, setFieldErrors] = useState({});
+    const [alert, setAlert] = useState({ show: false, type: "info", title: "", message: "" });
+    const alertTimerRef = useRef(null);
 
     // Form state
     const [formData, setFormData] = useState({
@@ -57,6 +58,27 @@ export default function Users() {
         }
     };
 
+    const showAlert = (type, title, message) => {
+        // Clear any existing timer
+        if (alertTimerRef.current) {
+            clearTimeout(alertTimerRef.current);
+        }
+
+        setAlert({ show: true, type, title, message });
+
+        // Auto-close after 2500ms
+        alertTimerRef.current = setTimeout(() => {
+            setAlert((prev) => ({ ...prev, show: false }));
+        }, 2500);
+    };
+
+    const closeAlert = () => {
+        if (alertTimerRef.current) {
+            clearTimeout(alertTimerRef.current);
+        }
+        setAlert((prev) => ({ ...prev, show: false }));
+    };
+
     const validateForm = () => {
         const newErrors = {};
 
@@ -75,24 +97,24 @@ export default function Users() {
         if (!formData.id_depa) newErrors.id_depa = "El departamento es requerido";
         if (!formData.id_rol) newErrors.id_rol = "El rol es requerido";
 
-        setErrors(newErrors);
+        setFieldErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setGeneralError("");
-        setSuccessMessage("");
+        closeAlert();
+        setFieldErrors({});
 
         if (!validateForm()) {
-            setGeneralError("Por favor corrige los errores en el formulario");
+            showAlert("error", "Error de validación", "Por favor corrige los errores en el formulario");
             return;
         }
 
-        setLoading(true);
+        setIsSaving(true);
         try {
             await api.post("/admin/users", formData);
-            setSuccessMessage("Usuario creado exitosamente");
+            showAlert("success", "Usuario creado", "El usuario se creó exitosamente");
             setFormData({
                 nombre: "",
                 apellido_p: "",
@@ -105,46 +127,51 @@ export default function Users() {
                 admin: false,
                 codigo: "",
             });
-            setErrors({});
+            setFieldErrors({});
             loadUsers();
         } catch (err) {
-            if (err.response?.data?.errors) {
-                setErrors(err.response.data.errors);
+            if (err.response?.status === 422 && err.response?.data?.errors) {
+                // Map Laravel validation errors to field errors (take first message per field)
+                const backendErrors = {};
+                Object.keys(err.response.data.errors).forEach((key) => {
+                    backendErrors[key] = err.response.data.errors[key][0];
+                });
+                setFieldErrors(backendErrors);
+                showAlert("error", "Error de validación", "Revisa los campos marcados en rojo");
             } else if (err.response?.data?.message) {
-                setGeneralError(err.response.data.message);
+                showAlert("error", "Error", err.response.data.message);
             } else {
-                setGeneralError("Error al crear usuario");
+                showAlert("error", "Error", "Hubo un error al crear el usuario. Intenta de nuevo.");
             }
         } finally {
-            setLoading(false);
+            setIsSaving(false);
         }
     };
 
     const handleChange = (field, value) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
         // Clear error for this field
-        if (errors[field]) {
-            setErrors((prev) => ({ ...prev, [field]: "" }));
+        if (fieldErrors[field]) {
+            setFieldErrors((prev) => ({ ...prev, [field]: "" }));
         }
     };
 
     return (
-        <AppShell depaId={depaId}>
+        <AppShell depaId={depaId} showBackButton={true}>
             <div className="space-y-6">
                 <h1 className="text-3xl font-bold text-text-dark">Gestión de Usuarios</h1>
 
                 {/* Create User Form */}
                 <Card title="Crear Nuevo Usuario">
-                    {generalError && (
-                        <div className="mb-4 p-3 bg-red-100 border border-red-300 rounded-lg text-red-700">
-                            {generalError}
-                        </div>
-                    )}
-                    {successMessage && (
-                        <div className="mb-4 p-3 bg-green-100 border border-green-300 rounded-lg text-green-700">
-                            {successMessage}
-                        </div>
-                    )}
+                    <div className="mb-4">
+                        <AnimatedAlert
+                            show={alert.show}
+                            type={alert.type}
+                            title={alert.title}
+                            message={alert.message}
+                            onClose={closeAlert}
+                        />
+                    </div>
 
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -152,21 +179,21 @@ export default function Users() {
                                 label="Nombre"
                                 value={formData.nombre}
                                 onChange={(e) => handleChange("nombre", e.target.value)}
-                                error={errors.nombre}
+                                error={fieldErrors.nombre}
                                 required
                             />
                             <Input
                                 label="Apellido Paterno"
                                 value={formData.apellido_p}
                                 onChange={(e) => handleChange("apellido_p", e.target.value)}
-                                error={errors.apellido_p}
+                                error={fieldErrors.apellido_p}
                                 required
                             />
                             <Input
                                 label="Apellido Materno"
                                 value={formData.apellido_m}
                                 onChange={(e) => handleChange("apellido_m", e.target.value)}
-                                error={errors.apellido_m}
+                                error={fieldErrors.apellido_m}
                             />
                         </div>
 
@@ -175,7 +202,7 @@ export default function Users() {
                                 label="Celular"
                                 value={formData.celular}
                                 onChange={(e) => handleChange("celular", e.target.value)}
-                                error={errors.celular}
+                                error={fieldErrors.celular}
                                 placeholder="10 dígitos"
                                 required
                             />
@@ -184,7 +211,7 @@ export default function Users() {
                                 type="password"
                                 value={formData.password}
                                 onChange={(e) => handleChange("password", e.target.value)}
-                                error={errors.password}
+                                error={fieldErrors.password}
                                 placeholder="Mínimo 8 caracteres"
                                 required
                             />
@@ -198,7 +225,7 @@ export default function Users() {
                                 <select
                                     value={formData.id_depa}
                                     onChange={(e) => handleChange("id_depa", e.target.value)}
-                                    className={`px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary ${errors.id_depa ? "border-red-500" : "border-border-soft"
+                                    className={`px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B08968]/30 focus:border-[#B08968] ${fieldErrors.id_depa ? "border-red-500" : "border-[#E7DED5]"
                                         }`}
                                 >
                                     <option value="">Seleccionar...</option>
@@ -208,7 +235,7 @@ export default function Users() {
                                         </option>
                                     ))}
                                 </select>
-                                {errors.id_depa && <span className="text-sm text-red-500">{errors.id_depa}</span>}
+                                {fieldErrors.id_depa && <span className="text-xs text-red-700">{fieldErrors.id_depa}</span>}
                             </div>
 
                             <div className="flex flex-col gap-1">
@@ -218,7 +245,7 @@ export default function Users() {
                                 <select
                                     value={formData.id_rol}
                                     onChange={(e) => handleChange("id_rol", e.target.value)}
-                                    className={`px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary ${errors.id_rol ? "border-red-500" : "border-border-soft"
+                                    className={`px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B08968]/30 focus:border-[#B08968] ${fieldErrors.id_rol ? "border-red-500" : "border-[#E7DED5]"
                                         }`}
                                 >
                                     <option value="">Seleccionar...</option>
@@ -228,7 +255,7 @@ export default function Users() {
                                         </option>
                                     ))}
                                 </select>
-                                {errors.id_rol && <span className="text-sm text-red-500">{errors.id_rol}</span>}
+                                {fieldErrors.id_rol && <span className="text-xs text-red-700">{fieldErrors.id_rol}</span>}
                             </div>
 
                             <Input
@@ -261,9 +288,9 @@ export default function Users() {
                             </label>
                         </div>
 
-                        <Button type="submit" disabled={loading}>
-                            {loading ? "Creando..." : "Crear Usuario"}
-                        </Button>
+                        <LoadingButton type="submit" isLoading={isSaving}>
+                            Crear Usuario
+                        </LoadingButton>
                     </form>
                 </Card>
 

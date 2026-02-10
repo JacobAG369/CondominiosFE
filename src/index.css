@@ -13,3 +13,26 @@ body {
 * {
   box-sizing: border-box;
 }
+
+/* Transiciones para AnimatedAlert */
+.fade-slide-enter {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+.fade-slide-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.fade-slide-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.fade-slide-exit-active {
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 180ms ease, transform 180ms ease;
+}

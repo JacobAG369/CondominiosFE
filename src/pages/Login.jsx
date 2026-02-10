@@ -22,16 +22,25 @@ export default function Login() {
       const data = await login({ celular, password });
       localStorage.setItem("token", data.token);
 
-      // 2) Get user data (for depa_id, id_rol, admin)
+      // 2) Get user data (for depa_id, id_rol, admin, persona)
       const userData = await me();
       const depa = userData?.id_depa || userData?.user?.id_depa;
       const idRol = userData?.id_rol;
       const isAdmin = userData?.admin || false;
 
+      // Get persona data from nested user.persona or direct persona object
+      const persona = userData?.user?.persona || userData?.persona;
+      const nombre = persona?.nombre || '';
+      const apellidoP = persona?.apellido_p || '';
+      const apellidoM = persona?.apellido_m || '';
+
       // Store in localStorage
       if (depa) localStorage.setItem("depa_id", String(depa));
       if (idRol) localStorage.setItem("id_rol", String(idRol));
       localStorage.setItem("admin", String(isAdmin));
+      if (nombre) localStorage.setItem("user_nombre", nombre);
+      if (apellidoP) localStorage.setItem("user_apellido_p", apellidoP);
+      if (apellidoM) localStorage.setItem("user_apellido_m", apellidoM);
 
       // 3) Role-based redirect
       if (isAdmin) {

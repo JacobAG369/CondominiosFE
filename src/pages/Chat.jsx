@@ -28,7 +28,7 @@ export default function Chat() {
       setMessages((prev) => {
         const exists = prev.some(msg => msg.id === data.id);
         if (exists) {
-          console.log("⚠️ Duplicate message, skipping:", data.id);
+          console.log("Duplicate message, skipping:", data.id);
           return prev;
         }
         return [...prev, data];
@@ -78,9 +78,9 @@ export default function Chat() {
           msg.id === tempMessage.id ? response.data : msg
         )
       );
-      console.log("✅ Message sent successfully:", response.data);
+      console.log("Message sent successfully:", response.data);
     } catch (err) {
-      console.error("❌ Error sending message:", err);
+      console.error("Error sending message:", err);
       // Remove optimistic message on error
       setMessages((prev) => prev.filter(msg => msg.id !== tempMessage.id));
       alert("Error al enviar mensaje: " + (err.response?.data?.message || err.message));
@@ -95,8 +95,8 @@ export default function Chat() {
   };
 
   return (
-    <AppShell depaId={depaId}>
-      <Card title="💬 Chat Global">
+    <AppShell depaId={depaId} showBackButton={true}>
+      <Card title="Chat Global">
         <div className="space-y-4">
           {/* Messages List */}
           <div className="bg-gray-50 border border-[#E7DED5] rounded-lg p-4 h-96 overflow-y-auto space-y-2">

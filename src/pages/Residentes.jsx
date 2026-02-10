@@ -69,7 +69,7 @@ export default function Residentes() {
   };
 
   return (
-    <AppShell depaId={depaId}>
+    <AppShell depaId={depaId} showBackButton={true}>
       <div className="space-y-6">
         <h1 className="text-3xl font-bold text-text-dark">Residentes</h1>
 

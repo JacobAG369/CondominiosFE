@@ -13,7 +13,7 @@ export default function Welcome() {
                 <h1 className="text-3xl font-bold text-text-dark">Bienvenido</h1>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Card title="💬 Chat Global">
+                    <Card title="Chat Global">
                         <p className="text-gray-600 mb-4">
                             Envía mensajes a todos los departamentos del condominio en tiempo real.
                         </p>

@@ -27,7 +27,7 @@ export default function NotificationBell({ depaId }) {
 
     channel.listen(".notification.created", (payload) => {
       console.log("🔔 Notification broadcast received:", payload);
-      // ✅ cambia la campana al llegar una notificación
+      // Cambia la campana al llegar una notificación
       setCount((c) => c + 1);
     });
 
