@@ -1,11 +1,11 @@
 import AppShell from "../components/layout/AppShell";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "@tanstack/react-router";
 
 export default function Welcome() {
     const depaId = Number(localStorage.getItem("depa_id"));
-    const navigate = useNavigate();
+    const router = useRouter();
 
     return (
         <AppShell depaId={depaId}>
@@ -17,7 +17,7 @@ export default function Welcome() {
                         <p className="text-gray-600 mb-4">
                             Envía mensajes a todos los departamentos del condominio en tiempo real.
                         </p>
-                        <Button onClick={() => navigate("/chat")}>
+                        <Button onClick={() => router.navigate({ to: "/chat" })}>
                             Ir al Chat
                         </Button>
                     </Card>
@@ -26,7 +26,7 @@ export default function Welcome() {
                         <p className="text-gray-600 mb-4">
                             Revisa tus notificaciones y mantente informado sobre eventos importantes.
                         </p>
-                        <Button onClick={() => navigate("/notifications")}>
+                        <Button onClick={() => router.navigate({ to: "/notifications" })}>
                             Ver Notificaciones
                         </Button>
                     </Card>

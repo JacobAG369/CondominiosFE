@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "@tanstack/react-router";
 import { getResidentes, createResidente, deleteResidente } from "../api/residentes";
 import AppShell from "../components/layout/AppShell";
 import Card from "../components/ui/Card";
@@ -17,7 +17,7 @@ export default function Residentes() {
   const [success, setSuccess] = useState("");
 
   const depaId = Number(localStorage.getItem("depa_id"));
-  const navigate = useNavigate();
+  const router = useRouter(); // eslint-disable-line no-unused-vars
 
   const loadResidentes = async () => {
     try {

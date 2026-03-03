@@ -3,13 +3,13 @@ import AppShell from "../../components/layout/AppShell";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import StatCard from "../../components/ui/StatCard";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "@tanstack/react-router";
 import { getAdminStats } from "../../api/admin";
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 export default function AdminDashboard() {
     const depaId = Number(localStorage.getItem("depa_id"));
-    const navigate = useNavigate();
+    const router = useRouter();
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -210,16 +210,16 @@ export default function AdminDashboard() {
                 {/* Quick Actions */}
                 <Card title="Acciones Rápidas">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <Button onClick={() => navigate("/admin/users")} className="w-full">
+                        <Button onClick={() => router.navigate({ to: "/admin/users" })} className="w-full">
                             Gestionar Usuarios
                         </Button>
-                        <Button onClick={() => navigate("/residentes")} className="w-full">
+                        <Button onClick={() => router.navigate({ to: "/residentes" })} className="w-full">
                             Ver Residentes
                         </Button>
-                        <Button onClick={() => navigate("/chat")} className="w-full">
+                        <Button onClick={() => router.navigate({ to: "/chat" })} className="w-full">
                             Ir al Chat
                         </Button>
-                        <Button onClick={() => navigate("/notifications")} className="w-full">
+                        <Button onClick={() => router.navigate({ to: "/notifications" })} className="w-full">
                             Ver Notificaciones
                         </Button>
                     </div>

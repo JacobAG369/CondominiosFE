@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchNotifications, markRead } from "../api/notifications";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "@tanstack/react-router";
 import AppShell from "../components/layout/AppShell";
 import Card from "../components/ui/Card";
 import Badge from "../components/ui/Badge";
@@ -23,7 +23,7 @@ function getLink(n) {
 export default function Notifications() {
   const depaId = Number(localStorage.getItem("depa_id"));
   const [items, setItems] = useState([]);
-  const navigate = useNavigate();
+  const router = useRouter();
 
   useEffect(() => {
     (async () => {
@@ -39,7 +39,7 @@ export default function Notifications() {
         prev.map((x) => (x.id === n.id ? { ...x, read_at: new Date().toISOString() } : x))
       );
     }
-    navigate(getLink(n));
+    router.navigate({ to: getLink(n) });
   };
 
   return (

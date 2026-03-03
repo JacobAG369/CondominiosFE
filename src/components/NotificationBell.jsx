@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { fetchUnreadCount } from "../api/notifications";
 import echo from "../realtime/echo";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "@tanstack/react-router";
 
 export default function NotificationBell({ depaId }) {
   const [count, setCount] = useState(0);
-  const navigate = useNavigate();
+  const router = useRouter();
 
   useEffect(() => {
     // carga inicial
@@ -38,7 +38,7 @@ export default function NotificationBell({ depaId }) {
 
   return (
     <button
-      onClick={() => navigate("/notifications")}
+      onClick={() => router.navigate({ to: "/notifications" })}
       className="relative px-3 py-2 text-[#2B2B2B] hover:text-[#B08968] transition-colors"
     >
       📩 Notificaciones

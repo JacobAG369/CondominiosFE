@@ -1,16 +1,18 @@
 import { useState } from "react";
 import { login, me } from "../api/auth";
-import { useNavigate, Link } from "react-router-dom";
+import { useRouter, Link } from "@tanstack/react-router";
 import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
 import Card from "../components/ui/Card";
 
 export default function Login() {
-  const [celular, setCelular] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const router = useRouter();
+  // Show success banner when arriving from email verification link
+  const verified = new URLSearchParams(window.location.search).get("verified");
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -19,7 +21,7 @@ export default function Login() {
 
     try {
       // 1) Login
-      const data = await login({ celular, password });
+      const data = await login({ email, password });
       localStorage.setItem("token", data.token);
 
       // 2) Get user data (for depa_id, id_rol, admin, persona)
@@ -41,12 +43,17 @@ export default function Login() {
       if (nombre) localStorage.setItem("user_nombre", nombre);
       if (apellidoP) localStorage.setItem("user_apellido_p", apellidoP);
       if (apellidoM) localStorage.setItem("user_apellido_m", apellidoM);
-
+      // Persist email verification status (used by router guards)
+      const emailVerified = !!(
+        userData?.email_verified_at ||
+        userData?.user?.email_verified_at
+      );
+      localStorage.setItem("email_verified", String(emailVerified));
       // 3) Role-based redirect
       if (isAdmin) {
-        navigate("/admin");
+        router.navigate({ to: "/admin" });
       } else {
-        navigate("/welcome");
+        router.navigate({ to: "/welcome" });
       }
     } catch (err) {
       console.error("LOGIN ERROR:", err);
@@ -70,6 +77,12 @@ export default function Login() {
         <Card>
           <h2 className="text-2xl font-bold text-text-dark mb-6">Iniciar Sesión</h2>
 
+          {verified === "1" && (
+            <div className="mb-4 p-3 bg-green-100 border border-green-300 rounded-lg text-green-700 text-sm">
+              ✅ ¡Correo verificado correctamente! Ya puedes iniciar sesión.
+            </div>
+          )}
+
           {error && (
             <div className="mb-4 p-3 bg-red-100 border border-red-300 rounded-lg text-red-700">
               {error}
@@ -78,11 +91,11 @@ export default function Login() {
 
           <form onSubmit={handleLogin} className="space-y-4">
             <Input
-              label="Celular"
-              type="text"
-              placeholder="Ingresa tu celular"
-              value={celular}
-              onChange={(e) => setCelular(e.target.value)}
+              label="Correo electrónico"
+              type="email"
+              placeholder="tu@correo.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
 

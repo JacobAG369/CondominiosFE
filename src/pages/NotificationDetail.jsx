@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useRouter } from "@tanstack/react-router";
 import api from "../api/axios";
 
 
 export default function NotificationDetail() {
-    const { id } = useParams();
-    const navigate = useNavigate();
+    const { id } = useParams({ strict: false });
+    const router = useRouter();
     const [notification, setNotification] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -42,7 +42,7 @@ export default function NotificationDetail() {
                 <div className="card">
                     <h2 style={{ color: "red" }}>Error</h2>
                     <p>{error}</p>
-                    <button className="btn-primary" onClick={() => navigate("/notifications")}>
+                    <button className="btn-primary" onClick={() => router.navigate({ to: "/notifications" })}>
                         Volver a notificaciones
                     </button>
                 </div>
@@ -55,7 +55,7 @@ export default function NotificationDetail() {
             <div className="container">
                 <div className="card">
                     <p>Notificación no encontrada</p>
-                    <button className="btn-primary" onClick={() => navigate("/notifications")}>
+                    <button className="btn-primary" onClick={() => router.navigate({ to: "/notifications" })}>
                         Volver a notificaciones
                     </button>
                 </div>
@@ -67,7 +67,7 @@ export default function NotificationDetail() {
         <div className="container">
             <div className="card">
                 <button
-                    onClick={() => navigate("/notifications")}
+                    onClick={() => router.navigate({ to: "/notifications" })}
                     style={{
                         marginBottom: 16,
                         padding: "8px 16px",

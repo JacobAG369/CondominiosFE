@@ -1,8 +1,8 @@
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "@tanstack/react-router";
 import Button from "../ui/Button";
 
 export default function AppShell({ children, depaId, showTopbar = true, showBackButton = false }) {
-    const navigate = useNavigate();
+    const router = useRouter();
 
     // Get user data from localStorage
     const nombre = localStorage.getItem("user_nombre") || "";
@@ -21,7 +21,8 @@ export default function AppShell({ children, depaId, showTopbar = true, showBack
         localStorage.removeItem("user_nombre");
         localStorage.removeItem("user_apellido_p");
         localStorage.removeItem("user_apellido_m");
-        navigate("/login");
+        localStorage.removeItem("email_verified");
+        router.navigate({ to: "/login" });
     };
 
     return (
@@ -37,7 +38,7 @@ export default function AppShell({ children, depaId, showTopbar = true, showBack
                                     <Button
                                         variant="outline"
                                         className="text-sm"
-                                        onClick={() => navigate(backRoute)}
+                                        onClick={() => router.navigate({ to: backRoute })}
                                     >
                                         ← {backLabel}
                                     </Button>
@@ -47,14 +48,14 @@ export default function AppShell({ children, depaId, showTopbar = true, showBack
                                     <Button
                                         variant="outline"
                                         className="text-sm"
-                                        onClick={() => navigate("/chat")}
+                                        onClick={() => router.navigate({ to: "/chat" })}
                                     >
                                         Chat
                                     </Button>
                                     <Button
                                         variant="outline"
                                         className="text-sm"
-                                        onClick={() => navigate("/notifications")}
+                                        onClick={() => router.navigate({ to: "/notifications" })}
                                     >
                                         🔔 Notificaciones
                                     </Button>
