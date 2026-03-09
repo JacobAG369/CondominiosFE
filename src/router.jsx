@@ -19,6 +19,7 @@ import Users from "./pages/admin/Users";
 // ── Auth Feature ──────────────────────────────────────────────────
 import RegisterPage from "./features/auth/pages/RegisterPage";
 import VerifyEmailPage from "./features/auth/pages/VerifyEmailPage";
+import ChangePassword from "./pages/ChangePassword";
 
 // ─────────────────────────────────────────────────────────────────
 // Helpers
@@ -142,6 +143,13 @@ const notificationDetailRoute = createRoute({
     component: NotificationDetail,
 });
 
+const changePasswordRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/change-password",
+    beforeLoad: requireAuth,
+    component: ChangePassword,
+});
+
 // ─────────────────────────────────────────────────────────────────
 // Admin routes (token + email verified + admin role)
 // ─────────────────────────────────────────────────────────────────
@@ -184,6 +192,7 @@ const routeTree = rootRoute.addChildren([
     chatRoute,
     notificationsRoute,
     notificationDetailRoute,
+    changePasswordRoute,
     adminRoute,
     adminUsersRoute,
     notFoundRoute,

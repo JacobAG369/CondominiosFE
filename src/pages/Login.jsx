@@ -4,6 +4,7 @@ import { useRouter, Link } from "@tanstack/react-router";
 import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
 import Card from "../components/ui/Card";
+import { getDeviceId } from "../utils/deviceId";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -20,8 +21,8 @@ export default function Login() {
     setLoading(true);
 
     try {
-      // 1) Login
-      const data = await login({ email, password });
+      // 1) Login (device_id garantiza una sesión por dispositivo)
+      const data = await login({ email, password, device_id: getDeviceId() });
       localStorage.setItem("token", data.token);
 
       // 2) Get user data (for depa_id, id_rol, admin, persona)

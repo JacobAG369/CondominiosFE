@@ -1,5 +1,6 @@
 import { useRouter } from "@tanstack/react-router";
 import Button from "../ui/Button";
+import { logout } from "../../api/auth";
 
 export default function AppShell({ children, depaId, showTopbar = true, showBackButton = false }) {
     const router = useRouter();
@@ -13,16 +14,23 @@ export default function AppShell({ children, depaId, showTopbar = true, showBack
     const backRoute = isAdmin ? "/admin" : "/welcome";
     const backLabel = isAdmin ? "Panel Admin" : "Menú Principal";
 
-    const handleLogout = () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("depa_id");
-        localStorage.removeItem("id_rol");
-        localStorage.removeItem("admin");
-        localStorage.removeItem("user_nombre");
-        localStorage.removeItem("user_apellido_p");
-        localStorage.removeItem("user_apellido_m");
-        localStorage.removeItem("email_verified");
-        router.navigate({ to: "/login" });
+    const handleLogout = async () => {
+        try {
+            await logout();
+        } catch (err) {
+            // Continuar incluso si el backend falla
+            console.error("Logout error:", err);
+        } finally {
+            localStorage.removeItem("token");
+            localStorage.removeItem("depa_id");
+            localStorage.removeItem("id_rol");
+            localStorage.removeItem("admin");
+            localStorage.removeItem("user_nombre");
+            localStorage.removeItem("user_apellido_p");
+            localStorage.removeItem("user_apellido_m");
+            localStorage.removeItem("email_verified");
+            router.navigate({ to: "/login" });
+        }
     };
 
     return (
@@ -58,6 +66,13 @@ export default function AppShell({ children, depaId, showTopbar = true, showBack
                                         onClick={() => router.navigate({ to: "/notifications" })}
                                     >
                                         🔔 Notificaciones
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        className="text-sm"
+                                        onClick={() => router.navigate({ to: "/change-password" })}
+                                    >
+                                        🔑 Contraseña
                                     </Button>
                                 </div>
                             </div>
