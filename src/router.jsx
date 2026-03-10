@@ -19,6 +19,7 @@ import Users from "./pages/admin/Users";
 // ── Auth Feature ──────────────────────────────────────────────────
 import RegisterPage from "./features/auth/pages/RegisterPage";
 import VerifyEmailPage from "./features/auth/pages/VerifyEmailPage";
+import ForgotPasswordPage from "./features/auth/pages/ForgotPasswordPage";
 import ChangePassword from "./pages/ChangePassword";
 
 // ─────────────────────────────────────────────────────────────────
@@ -101,6 +102,19 @@ const verifyEmailRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/verify-email",
     component: VerifyEmailPage,
+});
+
+const forgotPasswordRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/forgot-password",
+    // Declare which search params this route accepts so TanStack Router
+    // can parse and pass them correctly without throwing "Unknown search params".
+    validateSearch: (search) => ({
+        step: search.step ?? "1",
+        email: search.email ?? "",
+        code: search.code ?? "",
+    }),
+    component: ForgotPasswordPage,
 });
 
 // ─────────────────────────────────────────────────────────────────
@@ -187,6 +201,7 @@ const routeTree = rootRoute.addChildren([
     loginRoute,
     registerRoute,
     verifyEmailRoute,
+    forgotPasswordRoute,
     welcomeRoute,
     residentesRoute,
     chatRoute,

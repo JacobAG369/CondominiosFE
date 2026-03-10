@@ -13,7 +13,9 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   // Show success banner when arriving from email verification link
-  const verified = new URLSearchParams(window.location.search).get("verified");
+  const searchParams = new URLSearchParams(window.location.search);
+  const verified = searchParams.get("verified");
+  const passwordReset = searchParams.get("reset");
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -84,6 +86,12 @@ export default function Login() {
             </div>
           )}
 
+          {passwordReset === "1" && (
+            <div className="mb-4 p-3 bg-green-100 border border-green-300 rounded-lg text-green-700 text-sm">
+              🔐 Contraseña actualizada correctamente. Inicia sesión con tu nueva contraseña.
+            </div>
+          )}
+
           {error && (
             <div className="mb-4 p-3 bg-red-100 border border-red-300 rounded-lg text-red-700">
               {error}
@@ -118,6 +126,15 @@ export default function Login() {
             ¿No tienes cuenta?{" "}
             <Link to="/register" className="text-primary hover:text-primary-hover font-medium">
               Regístrate
+            </Link>
+          </p>
+
+          <p className="mt-2 text-center text-sm">
+            <Link
+              to="/forgot-password"
+              className="text-gray-400 hover:text-primary text-xs transition-colors"
+            >
+              ¿Olvidaste tu contraseña?
             </Link>
           </p>
         </Card>
