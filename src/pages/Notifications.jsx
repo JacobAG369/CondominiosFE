@@ -4,6 +4,7 @@ import { useRouter } from "@tanstack/react-router";
 import AppShell from "../components/layout/AppShell";
 import Card from "../components/ui/Card";
 import Badge from "../components/ui/Badge";
+import { useAuth } from "../features/auth/hooks/useAuth";
 
 function getLink(n) {
   switch (n.type) {
@@ -21,7 +22,8 @@ function getLink(n) {
 }
 
 export default function Notifications() {
-  const depaId = Number(localStorage.getItem("depa_id"));
+  const { user } = useAuth();
+  const depaId = user?.departamentoId ?? undefined;
   const [items, setItems] = useState([]);
   const router = useRouter();
 

@@ -1,9 +1,9 @@
 import {
-    createRootRoute,
-    createRoute,
-    createRouter,
-    redirect,
-    Outlet,
+  createRootRoute,
+  createRoute,
+  createRouter,
+  redirect,
+  Outlet,
 } from "@tanstack/react-router";
 
 // ── Pages (existing) ──────────────────────────────────────────────
@@ -21,196 +21,167 @@ import RegisterPage from "./features/auth/pages/RegisterPage";
 import VerifyEmailPage from "./features/auth/pages/VerifyEmailPage";
 import ForgotPasswordPage from "./features/auth/pages/ForgotPasswordPage";
 import ChangePassword from "./pages/ChangePassword";
-
-// ─────────────────────────────────────────────────────────────────
-// Helpers
-// ─────────────────────────────────────────────────────────────────
-function getToken() {
-    return localStorage.getItem("token");
-}
-
-function isEmailVerified() {
-    return localStorage.getItem("email_verified") === "true";
-}
-
-function isAdmin() {
-    return localStorage.getItem("admin") === "true";
-}
-
-/**
- * Guard for routes that require authentication AND email verification.
- */
-function requireAuth({ location }) {
-    const token = getToken();
-    if (!token) {
-        throw redirect({ to: "/login", replace: true });
-    }
-    if (!isEmailVerified()) {
-        throw redirect({ to: "/verify-email", replace: true });
-    }
-}
-
-/**
- * Guard for admin-only routes.
- */
-function requireAdmin({ location }) {
-    requireAuth({ location });
-    if (!isAdmin()) {
-        throw redirect({ to: "/welcome", replace: true });
-    }
-}
+import Unauthorized from "./pages/Unauthorized";
+import {
+  redirectIfAuthenticated,
+  requireAuth,
+  resolveInitialRoute,
+} from "./features/auth/session";
 
 // ─────────────────────────────────────────────────────────────────
 // Root
 // ─────────────────────────────────────────────────────────────────
 const rootRoute = createRootRoute({
-    component: () => <Outlet />,
+  component: () => <Outlet />,
 });
 
 // ─────────────────────────────────────────────────────────────────
 // Index → smart redirect
 // ─────────────────────────────────────────────────────────────────
 const indexRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: "/",
-    beforeLoad: () => {
-        const token = getToken();
-        if (!token) throw redirect({ to: "/login", replace: true });
-        if (!isEmailVerified()) throw redirect({ to: "/verify-email", replace: true });
-        if (isAdmin()) throw redirect({ to: "/admin", replace: true });
-        throw redirect({ to: "/welcome", replace: true });
-    },
-    component: () => null,
+  getParentRoute: () => rootRoute,
+  path: "/",
+  beforeLoad: async () => {
+    throw redirect({ to: await resolveInitialRoute(), replace: true });
+  },
+  component: () => null,
 });
 
 // ─────────────────────────────────────────────────────────────────
 // Public routes
 // ─────────────────────────────────────────────────────────────────
 const loginRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: "/login",
-    component: Login,
+  getParentRoute: () => rootRoute,
+  path: "/login",
+  beforeLoad: redirectIfAuthenticated(),
+  component: Login,
 });
 
 const registerRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: "/register",
-    component: RegisterPage,
+  getParentRoute: () => rootRoute,
+  path: "/register",
+  beforeLoad: redirectIfAuthenticated(),
+  component: RegisterPage,
 });
 
 const verifyEmailRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: "/verify-email",
-    component: VerifyEmailPage,
+  getParentRoute: () => rootRoute,
+  path: "/verify-email",
+  beforeLoad: requireAuth({ allowUnverified: true }),
+  component: VerifyEmailPage,
 });
 
 const forgotPasswordRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: "/forgot-password",
-    // Declare which search params this route accepts so TanStack Router
-    // can parse and pass them correctly without throwing "Unknown search params".
-    validateSearch: (search) => ({
-        step: search.step ?? "1",
-        email: search.email ?? "",
-        code: search.code ?? "",
-    }),
-    component: ForgotPasswordPage,
+  getParentRoute: () => rootRoute,
+  path: "/forgot-password",
+  validateSearch: (search) => ({
+    step: search.step ?? "1",
+    email: search.email ?? "",
+    code: search.code ?? "",
+  }),
+  component: ForgotPasswordPage,
+});
+
+const unauthorizedRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/unauthorized",
+  beforeLoad: requireAuth(),
+  component: Unauthorized,
 });
 
 // ─────────────────────────────────────────────────────────────────
 // Protected routes (token + email verified)
 // ─────────────────────────────────────────────────────────────────
 const welcomeRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: "/welcome",
-    beforeLoad: requireAuth,
-    component: Welcome,
+  getParentRoute: () => rootRoute,
+  path: "/welcome",
+  beforeLoad: requireAuth(),
+  component: Welcome,
 });
 
 const residentesRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: "/residentes",
-    beforeLoad: requireAuth,
-    component: Residentes,
+  getParentRoute: () => rootRoute,
+  path: "/residentes",
+  beforeLoad: requireAuth(),
+  component: Residentes,
 });
 
 const chatRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: "/chat",
-    beforeLoad: requireAuth,
-    component: () => (
-        <Chat depaId={Number(localStorage.getItem("depa_id"))} />
-    ),
+  getParentRoute: () => rootRoute,
+  path: "/chat",
+  beforeLoad: requireAuth(),
+  component: Chat,
 });
 
 const notificationsRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: "/notifications",
-    beforeLoad: requireAuth,
-    component: Notifications,
+  getParentRoute: () => rootRoute,
+  path: "/notifications",
+  beforeLoad: requireAuth(),
+  component: Notifications,
 });
 
 const notificationDetailRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: "/notifications/$id",
-    beforeLoad: requireAuth,
-    component: NotificationDetail,
+  getParentRoute: () => rootRoute,
+  path: "/notifications/$id",
+  beforeLoad: requireAuth(),
+  component: NotificationDetail,
 });
 
 const changePasswordRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: "/change-password",
-    beforeLoad: requireAuth,
-    component: ChangePassword,
+  getParentRoute: () => rootRoute,
+  path: "/change-password",
+  beforeLoad: requireAuth(),
+  component: ChangePassword,
 });
 
 // ─────────────────────────────────────────────────────────────────
 // Admin routes (token + email verified + admin role)
 // ─────────────────────────────────────────────────────────────────
 const adminRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: "/admin",
-    beforeLoad: requireAdmin,
-    component: AdminDashboard,
+  getParentRoute: () => rootRoute,
+  path: "/admin",
+  beforeLoad: requireAuth({ roles: ["Administrador"] }),
+  component: AdminDashboard,
 });
 
 const adminUsersRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: "/admin/users",
-    beforeLoad: requireAdmin,
-    component: Users,
+  getParentRoute: () => rootRoute,
+  path: "/admin/users",
+  beforeLoad: requireAuth({ roles: ["Administrador"] }),
+  component: Users,
 });
 
 // ─────────────────────────────────────────────────────────────────
 // Catch-all → index
 // ─────────────────────────────────────────────────────────────────
 const notFoundRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: "*",
-    beforeLoad: () => {
-        throw redirect({ to: "/", replace: true });
-    },
-    component: () => null,
+  getParentRoute: () => rootRoute,
+  path: "*",
+  beforeLoad: () => {
+    throw redirect({ to: "/", replace: true });
+  },
+  component: () => null,
 });
 
 // ─────────────────────────────────────────────────────────────────
 // Build router
 // ─────────────────────────────────────────────────────────────────
 const routeTree = rootRoute.addChildren([
-    indexRoute,
-    loginRoute,
-    registerRoute,
-    verifyEmailRoute,
-    forgotPasswordRoute,
-    welcomeRoute,
-    residentesRoute,
-    chatRoute,
-    notificationsRoute,
-    notificationDetailRoute,
-    changePasswordRoute,
-    adminRoute,
-    adminUsersRoute,
-    notFoundRoute,
+  indexRoute,
+  loginRoute,
+  registerRoute,
+  verifyEmailRoute,
+  forgotPasswordRoute,
+  unauthorizedRoute,
+  welcomeRoute,
+  residentesRoute,
+  chatRoute,
+  notificationsRoute,
+  notificationDetailRoute,
+  changePasswordRoute,
+  adminRoute,
+  adminUsersRoute,
+  notFoundRoute,
 ]);
 
 export const router = createRouter({ routeTree });

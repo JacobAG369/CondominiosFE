@@ -6,9 +6,11 @@ import StatCard from "../../components/ui/StatCard";
 import { useRouter } from "@tanstack/react-router";
 import { getAdminStats } from "../../api/admin";
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { useAuth } from "../../features/auth/hooks/useAuth";
 
 export default function AdminDashboard() {
-    const depaId = Number(localStorage.getItem("depa_id"));
+    const { user } = useAuth();
+    const depaId = user?.departamentoId ?? undefined;
     const router = useRouter();
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);

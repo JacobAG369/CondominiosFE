@@ -1,14 +1,19 @@
 import { useRouter } from "@tanstack/react-router";
 import Button from "../ui/Button";
 import { logout } from "../../api/auth";
+import { resetAuthSession } from "../../features/auth/actions";
+import { useAuth } from "../../features/auth/hooks/useAuth";
+import { useSession } from "../../features/auth/hooks/useSession";
 
 export default function AppShell({ children, depaId, showTopbar = true, showBackButton = false }) {
     const router = useRouter();
+    const { user } = useAuth();
+    useSession();
 
-    // Get user data from localStorage
-    const nombre = localStorage.getItem("user_nombre") || "";
-    const apellidoP = localStorage.getItem("user_apellido_p") || "";
-    const isAdmin = localStorage.getItem("admin") === "true";
+    const nombre = user?.persona?.nombre || "";
+    const apellidoP = user?.persona?.apellidoP || "";
+    const isAdmin = user?.role.name === "Administrador";
+    const resolvedDepaId = depaId ?? user?.departamentoId ?? undefined;
 
     // Determine back route based on user type
     const backRoute = isAdmin ? "/admin" : "/welcome";
@@ -21,14 +26,7 @@ export default function AppShell({ children, depaId, showTopbar = true, showBack
             // Continuar incluso si el backend falla
             console.error("Logout error:", err);
         } finally {
-            localStorage.removeItem("token");
-            localStorage.removeItem("depa_id");
-            localStorage.removeItem("id_rol");
-            localStorage.removeItem("admin");
-            localStorage.removeItem("user_nombre");
-            localStorage.removeItem("user_apellido_p");
-            localStorage.removeItem("user_apellido_m");
-            localStorage.removeItem("email_verified");
+            resetAuthSession();
             router.navigate({ to: "/login" });
         }
     };
@@ -87,9 +85,9 @@ export default function AppShell({ children, depaId, showTopbar = true, showBack
                                     </div>
                                 )}
 
-                                {depaId && (
+                                {resolvedDepaId && (
                                     <span className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
-                                        Depa {depaId}
+                                        Depa {resolvedDepaId}
                                     </span>
                                 )}
 

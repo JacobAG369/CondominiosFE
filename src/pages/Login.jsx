@@ -1,10 +1,15 @@
 import { useState } from "react";
-import { login, me } from "../api/auth";
+import { login } from "../api/auth";
 import { useRouter, Link } from "@tanstack/react-router";
 import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
 import Card from "../components/ui/Card";
 import { getDeviceId } from "../utils/deviceId";
+import {
+  refreshSession,
+  resolveAuthenticatedPath,
+} from "../features/auth/session";
+import { setStoredAuthToken } from "../features/auth/storage";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -23,41 +28,12 @@ export default function Login() {
     setLoading(true);
 
     try {
-      // 1) Login (device_id garantiza una sesión por dispositivo)
       const data = await login({ email, password, device_id: getDeviceId() });
-      localStorage.setItem("token", data.token);
+      setStoredAuthToken(data.token);
 
-      // 2) Get user data (for depa_id, id_rol, admin, persona)
-      const userData = await me();
-      const depa = userData?.id_depa || userData?.user?.id_depa;
-      const idRol = userData?.id_rol;
-      const isAdmin = userData?.admin || false;
+      const user = await refreshSession();
 
-      // Get persona data from nested user.persona or direct persona object
-      const persona = userData?.user?.persona || userData?.persona;
-      const nombre = persona?.nombre || '';
-      const apellidoP = persona?.apellido_p || '';
-      const apellidoM = persona?.apellido_m || '';
-
-      // Store in localStorage
-      if (depa) localStorage.setItem("depa_id", String(depa));
-      if (idRol) localStorage.setItem("id_rol", String(idRol));
-      localStorage.setItem("admin", String(isAdmin));
-      if (nombre) localStorage.setItem("user_nombre", nombre);
-      if (apellidoP) localStorage.setItem("user_apellido_p", apellidoP);
-      if (apellidoM) localStorage.setItem("user_apellido_m", apellidoM);
-      // Persist email verification status (used by router guards)
-      const emailVerified = !!(
-        userData?.email_verified_at ||
-        userData?.user?.email_verified_at
-      );
-      localStorage.setItem("email_verified", String(emailVerified));
-      // 3) Role-based redirect
-      if (isAdmin) {
-        router.navigate({ to: "/admin" });
-      } else {
-        router.navigate({ to: "/welcome" });
-      }
+      router.navigate({ to: resolveAuthenticatedPath(user) });
     } catch (err) {
       console.error("LOGIN ERROR:", err);
       const msg =

@@ -6,9 +6,11 @@ import Badge from "../../components/ui/Badge";
 import AnimatedAlert from "../../components/ui/AnimatedAlert";
 import LoadingButton from "../../components/ui/LoadingButton";
 import api from "../../api/axios";
+import { useAuth } from "../../features/auth/hooks/useAuth";
 
 export default function Users() {
-    const depaId = Number(localStorage.getItem("depa_id"));
+    const { user } = useAuth();
+    const depaId = user?.departamentoId ?? undefined;
     const [users, setUsers] = useState([]);
     const [departamentos, setDepartamentos] = useState([]);
     const [roles, setRoles] = useState([]);

@@ -5,21 +5,7 @@ import AppShell from "../components/layout/AppShell";
 import Card from "../components/ui/Card";
 import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
-
-/**
- * Limpia todos los datos de sesión del localStorage.
- * Se mantiene el device_id para que el dispositivo ya no genere uno nuevo.
- */
-function clearAuthData() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("depa_id");
-    localStorage.removeItem("id_rol");
-    localStorage.removeItem("admin");
-    localStorage.removeItem("user_nombre");
-    localStorage.removeItem("user_apellido_p");
-    localStorage.removeItem("user_apellido_m");
-    localStorage.removeItem("email_verified");
-}
+import { resetAuthSession } from "../features/auth/actions";
 
 export default function ChangePassword() {
     const router = useRouter();
@@ -55,7 +41,7 @@ export default function ChangePassword() {
             });
 
             // Cerrar sesión local y redirigir al login
-            clearAuthData();
+            resetAuthSession();
             alert("Contraseña actualizada, por favor inicia sesión nuevamente.");
             router.navigate({ to: "/login", replace: true });
         } catch (err) {

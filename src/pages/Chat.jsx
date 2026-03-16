@@ -5,9 +5,11 @@ import AppShell from "../components/layout/AppShell";
 import Card from "../components/ui/Card";
 import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
+import { useAuth } from "../features/auth/hooks/useAuth";
 
 export default function Chat() {
-  const depaId = Number(localStorage.getItem("depa_id"));
+  const { user } = useAuth();
+  const depaId = user?.departamentoId ?? 0;
   const [messages, setMessages] = useState([]);
   const [content, setContent] = useState("");
   const messagesEndRef = useRef(null);

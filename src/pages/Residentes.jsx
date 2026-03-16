@@ -6,6 +6,7 @@ import Card from "../components/ui/Card";
 import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
 import Badge from "../components/ui/Badge";
+import { useAuth } from "../features/auth/hooks/useAuth";
 
 export default function Residentes() {
   const [residentes, setResidentes] = useState([]);
@@ -16,7 +17,8 @@ export default function Residentes() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const depaId = Number(localStorage.getItem("depa_id"));
+  const { user } = useAuth();
+  const depaId = user?.departamentoId ?? 0;
   const router = useRouter(); // eslint-disable-line no-unused-vars
 
   const loadResidentes = async () => {
@@ -29,8 +31,12 @@ export default function Residentes() {
   };
 
   useEffect(() => {
+    if (!depaId) {
+      return;
+    }
+
     loadResidentes();
-  }, []);
+  }, [depaId]);
 
   const handleCreate = async () => {
     setError("");

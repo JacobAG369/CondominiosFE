@@ -2,9 +2,11 @@ import AppShell from "../components/layout/AppShell";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
 import { useRouter } from "@tanstack/react-router";
+import { useAuth } from "../features/auth/hooks/useAuth";
 
 export default function Welcome() {
-    const depaId = Number(localStorage.getItem("depa_id"));
+    const { user } = useAuth();
+    const depaId = user?.departamentoId ?? undefined;
     const router = useRouter();
 
     return (

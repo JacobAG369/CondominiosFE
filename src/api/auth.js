@@ -8,8 +8,17 @@ export const login = async ({ email, password, device_id }) => {
 
 // USUARIO ACTUAL (para sacar depa_id)
 export const me = async () => {
-  const res = await api.get("/auth/me");
-  return res.data;
+  try {
+    const res = await api.get("/user");
+    return res.data;
+  } catch (error) {
+    if (error.response?.status === 404) {
+      const fallbackRes = await api.get("/auth/me");
+      return fallbackRes.data;
+    }
+
+    throw error;
+  }
 };
 
 // LOGOUT (revoca token en backend)
